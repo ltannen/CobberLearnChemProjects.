@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 
-# Number of carbons in the first 10 linear alkanes (methane to decane)
+# Use Georgia font for all text
+plt.rcParams['font.family'] = 'Georgia'
+
+# Number of carbons in the first 10 linear alkanes
 num_carbons = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 # Corresponding boiling points in degrees Celsius
@@ -17,13 +20,21 @@ boiling_points = [
     174.1    # Decane
 ]
 
-# Create the scatter plot
-plt.scatter(num_carbons, boiling_points)
+# Create the scatter plot (zorder makes points appear in front)
+plt.scatter(num_carbons, boiling_points, zorder=3)
 
 # Add title and axis labels
 plt.title("Boiling Point vs. Number of Carbons for Linear Alkanes")
 plt.xlabel("Number of Carbon Atoms")
 plt.ylabel("Boiling Point (°C)")
+
+# X-axis formatting
+plt.xticks(range(1, 11))
+plt.xlim(0, 10.5)
+
+# Add light gray grid lines behind the points
+plt.grid(True, which='both', axis='both',
+         color='lightgray', linestyle='--', linewidth=0.5, zorder=0)
 
 # Display the plot
 plt.show()
