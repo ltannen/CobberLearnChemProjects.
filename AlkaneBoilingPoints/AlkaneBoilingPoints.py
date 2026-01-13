@@ -1,40 +1,93 @@
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.widgets import RadioButtons
 
 # Use Georgia font for all text
 plt.rcParams['font.family'] = 'Georgia'
 
-# Number of carbons in the first 10 linear alkanes
-num_carbons = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# Data
+num_carbons = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+boiling_points = np.array([
+    -161.5, -88.6, -42.1, -0.5, 36.1,
+    68.7, 98.4, 125.6, 150.8, 174.1
+])
 
-# Corresponding boiling points in degrees Celsius
-boiling_points = [
-    -161.5,  # Methane
-    -88.6,   # Ethane
-    -42.1,   # Propane
-    -0.5,    # Butane
-    36.1,    # Pentane
-    68.7,    # Hexane
-    98.4,    # Heptane
-    125.6,   # Octane
-    150.8,   # Nonane
-    174.1    # Decane
-]
+# Create figure and axis
+fig, ax = plt.subplots()
+plt.subplots_adjust(bottom=0.22)
 
-# Create the scatter plot (zorder makes points appear in front)
-plt.scatter(num_carbons, boiling_points, zorder=3)
+# Scatter plot
+ax.scatter(num_carbons, boiling_points, zorder=3)
 
-# Add title and axis labels
-plt.title("Boiling Point vs. Number of Carbons for Linear Alkanes")
-plt.xlabel("Number of Carbon Atoms")
-plt.ylabel("Boiling Point (°C)")
+# Title and labels
+title = ax.set_title("Boiling Point vs. Number of Carbons for Linear Alkanes", pad=15)
+ax.set_xlabel("Number of Carbon Atoms")
+ax.set_ylabel("Boiling Point (°C)")
 
-# X-axis formatting
-plt.xticks(range(1, 11))
-plt.xlim(0, 10.5)
+# Axes formatting
+ax.set_xticks(range(0, 12))
+ax.set_xlim(0, 11)
 
-# Add light gray grid lines behind the points
-plt.grid(True, which='both', axis='both',
-         color='lightgray', linestyle='--', linewidth=0.5, zorder=0)
+# Grid
+ax.grid(True, which='both', axis='both',
+        color='lightgray', linestyle='--', linewidth=0.5, zorder=0)
 
-# Display the plot
+# Placeholder for fit line
+fit_line, = ax.plot([], [], zorder=2)
+
+# Placeholder for equation text (next to title)
+equation_text = ax.text(
+    0.99, 1.01, "",
+    transform=ax.transAxes,
+    ha="right", va="bottom",
+    fontsize=10
+)
+
+# Function to update fit
+def update_fit(label):
+    if label == "None":
+        fit_line.set_data([], [])
+        equation_text.set_text("")
+    else:
+        degree_map = {
+            "Linear": 1,
+            "Quadratic": 2,
+            "Cubic": 3
+        }
+        degree = degree_map[label]
+
+        coeffs = np.polyfit(num_carbons, boiling_points, degree)
+        x_fit = np.linspace(1, 10, 300)
+        y_fit = np.polyval(coeffs, x_fit)
+
+        fit_line.set_data(x_fit, y_fit)
+
+        # Format equation text
+        if degree == 1:
+            a, b = coeffs
+            eq = f"y = {a:.2f}x + {b:.2f}"
+        elif degree == 2:
+            a, b, c = coeffs
+            eq = f"y = {a:.2f}x² + {b:.2f}x + {c:.2f}"
+        else:
+            a, b, c, d = coeffs
+            eq = f"y = {a:.2f}x³ + {b:.2f}x² + {c:.2f}x + {d:.2f}"
+
+        equation_text.set_text(eq)
+
+    fig.canvas.draw_idle()
+
+# Radio button placement (right of x-axis label)
+rax = plt.axes([0.72, 0.05, 0.25, 0.12])
+radio = RadioButtons(
+    rax,
+    ("None", "Linear", "Quadratic", "Cubic"),
+    active=0
+)
+
+radio.on_clicked(update_fit)
+
+# Show plot
 plt.show()
+
+
