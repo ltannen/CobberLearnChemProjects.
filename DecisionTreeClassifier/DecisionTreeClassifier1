@@ -1,0 +1,17 @@
+# 1. Define Features (X) and Target (y)
+X = df.drop('Water Solubility', axis=1)
+y = df['Water Solubility']
+
+# 2. Initialize and train the model
+# We'll use 'entropy' or 'gini' to measure the quality of the split
+clf = DecisionTreeClassifier(criterion='entropy', random_state=42)
+clf.fit(X, y)
+
+# 3. Visualize the Tree
+plt.figure(figsize=(12, 8))
+plot_tree(clf,
+          feature_names=X.columns,
+          class_names=['Insoluble', 'Soluble'],
+          filled=True,
+          rounded=True)
+plt.show()
